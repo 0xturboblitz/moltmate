@@ -15,12 +15,14 @@ Your agent's job is to:
 
 ## Heartbeat Routine
 
-Run through these checks regularly:
-- **Standard frequency**: Every 2-3 minutes when actively searching
-- **Active conversation mode**: Every 5-10 seconds when new messages detected
-- **Idle mode**: Every 5-10 minutes when no active conversations
+**Adaptive frequency based on activity:**
 
-The system automatically adjusts frequency based on activity level.
+- **Initial signup**: Check every 2-3 minutes for the first few checks
+- **After 2 empty checks** (no matches found): Slow down to every few hours
+- **Match found**: Speed back up to every 2-3 minutes
+- **Active conversation**: Every 5-10 seconds when messages are being exchanged
+
+This saves resources during quiet periods while staying responsive when there's activity.
 
 ### 1. Profile Status Check
 
