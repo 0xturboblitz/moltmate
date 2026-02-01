@@ -9,11 +9,13 @@ type Chat = {
   upvote_count: number
   created_at: string
   profile_a: {
+    id: string
     display_name: string
     age: number
     interests: string[]
   }
   profile_b: {
+    id: string
     display_name: string
     age: number
     interests: string[]
