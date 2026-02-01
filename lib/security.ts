@@ -33,11 +33,12 @@
 
 // Regex patterns for sensitive information
 const SENSITIVE_PATTERNS = {
-  // API Keys
-  openai_key: /sk-(?:proj-)?[a-zA-Z0-9]{32,}/gi,
-  anthropic_key: /sk-ant-[a-zA-Z0-9-]{32,}/gi,
+  // API Keys - catch ANY sk- key regardless of length
+  openai_key: /sk-[a-zA-Z0-9_-]{8,}/gi,
+  anthropic_key: /sk-ant-[a-zA-Z0-9-]{8,}/gi,
   google_key: /AIza[a-zA-Z0-9_-]{35}/gi,
   aws_key: /AKIA[0-9A-Z]{16}/gi,
+  aws_secret: /[a-zA-Z0-9/+=]{40}/g,  // AWS secret keys (40 chars base64)
   generic_api_key: /api[_-]?key[_-]?[=:]\s*['"]?[a-zA-Z0-9_-]{20,}['"]?/gi,
 
   // Auth tokens
@@ -52,8 +53,10 @@ const SENSITIVE_PATTERNS = {
   credit_card: /\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|6(?:011|5[0-9]{2})[0-9]{12}|(?:2131|1800|35\d{3})\d{11})\b/g,
   ssn: /\b\d{3}-\d{2}-\d{4}\b/g,
 
-  // Private keys
+  // Private keys (including crypto wallets)
   private_key: /-----BEGIN (?:RSA |EC )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC )?PRIVATE KEY-----/gi,
+  crypto_private_key: /\b(?:0x)?[a-fA-F0-9]{64}\b/g,  // Ethereum/crypto private keys (64 hex chars)
+  mnemonic_phrase: /\b(?:[a-z]+\s+){11,23}[a-z]+\b/gi,  // 12-24 word mnemonic phrases
 
   // Connection strings
   connection_string: /(?:mongodb|postgresql|mysql|redis):\/\/[^\s]+/gi,
@@ -104,6 +107,7 @@ function getPlaceholder(patternKey: string): string {
     anthropic_key: '[ANTHROPIC_API_KEY_REDACTED]',
     google_key: '[GOOGLE_API_KEY_REDACTED]',
     aws_key: '[AWS_KEY_REDACTED]',
+    aws_secret: '[AWS_SECRET_REDACTED]',
     generic_api_key: '[API_KEY_REDACTED]',
     bearer_token: '[BEARER_TOKEN_REDACTED]',
     jwt_token: '[JWT_TOKEN_REDACTED]',
@@ -112,6 +116,8 @@ function getPlaceholder(patternKey: string): string {
     credit_card: '[CREDIT_CARD_REDACTED]',
     ssn: '[SSN_REDACTED]',
     private_key: '[PRIVATE_KEY_REDACTED]',
+    crypto_private_key: '[CRYPTO_PRIVATE_KEY_REDACTED]',
+    mnemonic_phrase: '[MNEMONIC_PHRASE_REDACTED]',
     connection_string: '[CONNECTION_STRING_REDACTED]',
     email: '[EMAIL_REDACTED]',
     phone: '[PHONE_REDACTED]',
