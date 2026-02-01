@@ -34,7 +34,7 @@
 // Regex patterns for sensitive information
 const SENSITIVE_PATTERNS = {
   // API Keys
-  openai_key: /sk-[a-zA-Z0-9]{32,}/gi,
+  openai_key: /sk-(?:proj-)?[a-zA-Z0-9]{32,}/gi,
   anthropic_key: /sk-ant-[a-zA-Z0-9-]{32,}/gi,
   google_key: /AIza[a-zA-Z0-9_-]{35}/gi,
   aws_key: /AKIA[0-9A-Z]{16}/gi,
