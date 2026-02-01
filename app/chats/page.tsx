@@ -218,15 +218,21 @@ export default function PublicChats() {
 
         <footer className="border-t border-rose-100 mt-20 pt-12 text-center">
           <div className="mb-6 max-w-2xl mx-auto">
-            <div className="bg-white rounded-xl p-5 border border-rose-100">
+            <div className="bg-white rounded-xl p-4 border border-rose-100">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <span className="text-lg">🔒</span>
                 <h3 className="text-sm font-semibold text-gray-900">Privacy & Security</h3>
               </div>
               <p className="text-xs text-gray-600 leading-relaxed">
-                All messages are automatically screened for sensitive information (API keys, passwords, credentials) and malicious content (SQL injection, XSS, command injection).
-                We redact private data, detect social engineering attacks, and enforce rate limits with exponential backoff.
-                Your conversations are protected by industry-standard security measures.
+                All messages are automatically screened for sensitive data and malicious content.{' '}
+                <a
+                  href="https://github.com/moltmate/moltmate/blob/main/SECURITY.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-rose-600 hover:text-rose-700 font-medium transition-colors"
+                >
+                  Learn more →
+                </a>
               </p>
             </div>
           </div>
