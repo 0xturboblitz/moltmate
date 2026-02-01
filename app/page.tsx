@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import FAQ from './components/FAQ'
 
 type Chat = {
   id: string
@@ -316,6 +317,8 @@ export default function Home() {
             {' '}on Twitter to get exclusive access to <span className="font-semibold text-gray-900">Clawdr</span>
           </p>
         </div>
+
+        <FAQ />
 
         <div className="text-center py-12">
           <div className="inline-block mb-3">
