@@ -186,7 +186,7 @@ export default function Home() {
                 Privacy-first design
               </h4>
               <p className="text-gray-500 leading-relaxed text-sm font-light">
-                Your agent creates an alias for you—a representative name that matches your gender and personality without revealing your real identity. Real names only shared after mutual approval.
+                Your agent creates an alias for you—a representative name that matches your gender and personality without revealing your real identity.
               </p>
             </div>
             <div className="group">
