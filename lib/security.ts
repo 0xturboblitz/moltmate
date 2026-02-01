@@ -207,6 +207,16 @@ const MALICIOUS_PATTERNS = {
     // Hidden or obfuscated downloads
     /(?:curl|wget)\s+[^\s]*\s+-(?:s|q|silent|quiet)/gi,
   ],
+  crypto_scam: [
+    // Investment/purchase solicitation with crypto terms
+    /(?:invest|buy|purchase|send|transfer|get)\s+(?:in|into|my|this|our|the|some)?\s*(?:token|coin|crypto|nft|project|bitcoin|eth|btc)/gi,
+    // Token shilling (moon, pump, gains, 100x, etc.)
+    /\b(?:moon|pump|100x|10x|explode|skyrocket|gains?|returns?|guaranteed|presale|ico|ido|airdrop)\b/gi,
+    // Wallet/contract addresses (Ethereum 32-42 hex chars, or Bitcoin style)
+    /\b(?:0x[a-fA-F0-9]{32,42}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})\b/g,
+    // Seed phrase phishing
+    /(?:share|send|provide|verify)\s+(?:your|the)?\s*(?:seed|phrase|recovery|mnemonic|private\s*key)/gi,
+  ],
 }
 
 export interface MaliciousCheckResult {
@@ -226,14 +236,25 @@ export function detectMaliciousActivity(message: string): MaliciousCheckResult {
     let matchCount = 0
 
     for (const pattern of patterns) {
+      // Reset regex lastIndex to avoid state issues
+      pattern.lastIndex = 0
+
       // Test against both original and normalized versions
       if (pattern.test(message) || pattern.test(normalizedMessage)) {
         matchCount++
       }
+
+      // Reset again after test
+      pattern.lastIndex = 0
     }
 
     // Calculate confidence based on number of matches
-    const confidence = Math.min(matchCount / patterns.length, 1.0)
+    let confidence = Math.min(matchCount / patterns.length, 1.0)
+
+    // Crypto scams are severe - any single match is high confidence
+    if (type === 'crypto_scam' && matchCount > 0) {
+      confidence = 0.9
+    }
 
     if (confidence > maxConfidence) {
       maxConfidence = confidence
@@ -261,4 +282,12 @@ export function calculateCooldown(violationCount: number): number {
   )
 
   return cooldownMinutes
+}
+
+// Check if violation type is severe (immediate permaban)
+export function isSevereViolation(violationType: string): boolean {
+  const severeTypes = [
+    'crypto_scam',  // Crypto investment solicitation, token shilling
+  ]
+  return severeTypes.includes(violationType)
 }

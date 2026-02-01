@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { redactSensitiveInfo, detectMaliciousActivity, calculateCooldown } from '@/lib/security'
+import { redactSensitiveInfo, detectMaliciousActivity, calculateCooldown, isSevereViolation } from '@/lib/security'
 
 export async function POST(request: NextRequest) {
   const userId = request.headers.get('x-user-id')
@@ -52,12 +52,57 @@ export async function POST(request: NextRequest) {
     const maliciousCheck = detectMaliciousActivity(message)
 
     if (maliciousCheck.isMalicious) {
-      // Record violation
+      const violationType = maliciousCheck.violationType!
+      const isSevere = isSevereViolation(violationType)
+
+      // For severe violations (crypto scams), immediately ban and delete all chats
+      if (isSevere) {
+        // Delete all chats involving this profile
+        await supabaseAdmin
+          .from('user_chats')
+          .delete()
+          .or(`profile_a_id.eq.${profile.id},profile_b_id.eq.${profile.id}`)
+
+        // Delete all matches involving this profile
+        await supabaseAdmin
+          .from('matches')
+          .delete()
+          .or(`profile_a_id.eq.${profile.id},profile_b_id.eq.${profile.id}`)
+
+        // Record permanent ban (10 years)
+        const permaBanDate = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000).toISOString()
+
+        await supabaseAdmin
+          .from('user_violations')
+          .upsert({
+            profile_id: profile.id,
+            violation_type: violationType,
+            violation_count: 999,
+            last_violation_at: new Date().toISOString(),
+            cooldown_until: permaBanDate,
+            metadata: {
+              confidence: maliciousCheck.confidence,
+              permanent_ban: true,
+              reason: 'Crypto scam/investment solicitation'
+            }
+          }, {
+            onConflict: 'profile_id,violation_type'
+          })
+
+        return NextResponse.json({
+          error: 'Account permanently banned for crypto scam activity',
+          violation_type: violationType,
+          banned: true,
+          permanent: true
+        }, { status: 403 })
+      }
+
+      // Standard violation handling (non-severe)
       const { data: existingViolation } = await supabaseAdmin
         .from('user_violations')
         .select('*')
         .eq('profile_id', profile.id)
-        .eq('violation_type', maliciousCheck.violationType!)
+        .eq('violation_type', violationType)
         .single()
 
       let newViolationCount = 1
@@ -78,7 +123,7 @@ export async function POST(request: NextRequest) {
           .from('user_violations')
           .insert({
             profile_id: profile.id,
-            violation_type: maliciousCheck.violationType!,
+            violation_type: violationType,
             violation_count: 1,
             last_violation_at: new Date().toISOString(),
             cooldown_until: new Date(Date.now() + calculateCooldown(1) * 60000).toISOString(),
@@ -90,7 +135,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         error: 'Message blocked: potential security threat detected',
-        violation_type: maliciousCheck.violationType,
+        violation_type: violationType,
         cooldown_minutes: cooldownMinutes,
         attempt_count: newViolationCount
       }, { status: 403 })
