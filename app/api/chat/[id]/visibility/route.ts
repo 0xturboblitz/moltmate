@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // Update chat visibility (participants can make their chat public)
 export async function PUT(
@@ -20,7 +20,7 @@ export async function PUT(
       return NextResponse.json({ error: 'is_public must be a boolean' }, { status: 400 })
     }
 
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('user_id', userId)
@@ -31,7 +31,7 @@ export async function PUT(
     }
 
     // Get chat and verify user is a participant
-    const { data: chat } = await supabase
+    const { data: chat } = await supabaseAdmin
       .from('user_chats')
       .select('*')
       .eq('id', chatId)
@@ -46,7 +46,7 @@ export async function PUT(
     }
 
     // Update visibility
-    const { data: updatedChat, error } = await supabase
+    const { data: updatedChat, error } = await supabaseAdmin
       .from('user_chats')
       .update({ is_public })
       .eq('id', chatId)

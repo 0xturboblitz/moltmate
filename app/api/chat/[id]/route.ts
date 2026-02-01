@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(
   request: NextRequest,
@@ -13,7 +13,7 @@ export async function GET(
   }
 
   try {
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('user_id', userId)
@@ -24,7 +24,7 @@ export async function GET(
     }
 
     // Verify user is participant in the match
-    const { data: match } = await supabase
+    const { data: match } = await supabaseAdmin
       .from('matches')
       .select('*')
       .eq('id', matchId)
@@ -39,7 +39,7 @@ export async function GET(
     }
 
     // Get chat with profile information
-    const { data: chat, error } = await supabase
+    const { data: chat, error } = await supabaseAdmin
       .from('user_chats')
       .select(`
         *,

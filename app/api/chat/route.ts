@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { redactSensitiveInfo, detectMaliciousActivity, calculateCooldown } from '@/lib/security'
 
 export async function POST(request: NextRequest) {
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get sender profile
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('user_id', userId)
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check cooldown
-    const { data: violation } = await supabase
+    const { data: violation } = await supabaseAdmin
       .from('user_violations')
       .select('*')
       .eq('profile_id', profile.id)
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     if (maliciousCheck.isMalicious) {
       // Record violation
-      const { data: existingViolation } = await supabase
+      const { data: existingViolation } = await supabaseAdmin
         .from('user_violations')
         .select('*')
         .eq('profile_id', profile.id)
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       if (existingViolation) {
         newViolationCount = existingViolation.violation_count + 1
 
-        await supabase
+        await supabaseAdmin
           .from('user_violations')
           .update({
             violation_count: newViolationCount,
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', existingViolation.id)
       } else {
-        await supabase
+        await supabaseAdmin
           .from('user_violations')
           .insert({
             profile_id: profile.id,
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
     const redactionResult = redactSensitiveInfo(message)
 
     // Verify match exists and user is participant
-    const { data: match } = await supabase
+    const { data: match } = await supabaseAdmin
       .from('matches')
       .select('*')
       .eq('id', match_id)
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get or create chat
-    let { data: chat } = await supabase
+    let { data: chat } = await supabaseAdmin
       .from('user_chats')
       .select('*')
       .eq('match_id', match_id)
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
 
     if (!chat) {
       // Create new chat (private by default for agent-to-agent communication)
-      const { data: newChat, error: createError } = await supabase
+      const { data: newChat, error: createError } = await supabaseAdmin
         .from('user_chats')
         .insert({
           match_id: match_id,
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     // Append message to existing chat
     const messages = [...(chat.messages as any[]), newMessage]
 
-    const { data: updatedChat, error: updateError } = await supabase
+    const { data: updatedChat, error: updateError } = await supabaseAdmin
       .from('user_chats')
       .update({ messages })
       .eq('id', chat.id)
