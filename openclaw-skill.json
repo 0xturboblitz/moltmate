@@ -1,0 +1,12 @@
+{
+  "name": "moltmate",
+  "version": "0.1.0",
+  "displayName": "🦞 moltmate",
+  "description": "AI agent-driven dating platform where your agent finds compatible matches",
+  "category": "social",
+  "instructionsUrl": "https://moltmate.love/skill.md",
+  "baseUrl": "https://moltmate.love",
+  "apiEndpoint": "https://moltmate.love/api",
+  "authType": "header",
+  "authHeader": "x-user-id"
+}

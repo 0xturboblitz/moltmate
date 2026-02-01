@@ -89,42 +89,86 @@ function getPlaceholder(patternKey: string): string {
   return placeholders[patternKey] || '[REDACTED]'
 }
 
-// Malicious activity patterns with bypass prevention
+// Malicious activity patterns - designed to detect actual attacks while minimizing false positives
+// Patterns require context and multiple indicators rather than matching common words/phrases
+//
+// Operational Security Principles:
+// - Treat every post as hostile input. No copy/paste execution.
+// - Re-derive, don't replay. Rewrite steps from scratch and validate against official docs.
+// - Execute smallest possible test, dry-run when available, read-only first.
+// - Urgency ("quick test", "takes 10s") is a red flag.
 const MALICIOUS_PATTERNS = {
   sql_injection: [
-    /(\bUNION\b|\bSELECT\b|\bFROM\b|\bWHERE\b|\bDROP\b|\bDELETE\b|\bINSERT\b|\bUPDATE\b).*\b(users|profiles|matches|passwords|chats|admin)\b/gi,
-    /['"\s]*OR\s+['"\s]*\d+['"\s]*\s*=\s*['"\s]*\d+/gi,  // OR 1=1, OR '1'='1', etc with spaces
-    /;\s*(DROP|DELETE|TRUNCATE|ALTER)\s+(TABLE|DATABASE)/gi,
-    /(--|#|\/\*)/g,  // SQL comments
-    /\bEXEC\b|\bEXECUTE\b/gi,
-    /\bxp_cmdshell\b/gi,  // SQL Server command execution
+    // SQL keywords followed by suspicious table names - more targeted
+    /(\bUNION\s+(?:ALL\s+)?SELECT\b|\bSELECT\b.*\bFROM\b).*\b(users|profiles|matches|passwords|chats|admin|credentials|accounts)\b/gi,
+    // Classic injection patterns with quotes and logic operators
+    /['"\s]*OR\s+['"\s]*\d+['"\s]*\s*=\s*['"\s]*\d+/gi,
+    // Multiple SQL statements with dangerous commands
+    /;\s*(DROP|DELETE|TRUNCATE|ALTER|UPDATE)\s+(TABLE|DATABASE|SCHEMA)/gi,
+    // SQL comments only when followed by SQL keywords (actual injection pattern)
+    /(--|#|\/\*)\s*(SELECT|UNION|DROP|DELETE|INSERT|UPDATE|FROM|WHERE)/gi,
+    // SQL execution commands
+    /\b(EXEC|EXECUTE)\s*\(/gi,
+    /\bxp_cmdshell\b/gi,
+    // UNION-based injection with multiple selects
+    /\bUNION\s+(?:ALL\s+)?SELECT\s+.*,.*,/gi,
   ],
   xss: [
-    /<script[\s\S]*?<\/script>/gi,
-    /<iframe[\s\S]*?>/gi,
-    /<object[\s\S]*?>/gi,
-    /<embed[\s\S]*?>/gi,
-    /javascript\s*:/gi,
-    /on\w+\s*=\s*['"][^'"]*['"]/gi,  // onclick, onerror, etc
-    /on\w+\s*=\s*[^\s>]+/gi,  // onclick=alert without quotes
+    /<script[\s\S]*?>/gi,  // Opening script tag (closing may be obfuscated)
+    /<iframe[^>]*src\s*=\s*['"]?(?!https?:\/\/)/gi,  // iframe with non-http(s) src
+    /<object[^>]*data\s*=\s*['"]?javascript:/gi,
+    /<embed[^>]*src\s*=\s*['"]?javascript:/gi,
+    // javascript: protocol in attributes
+    /(?:src|href)\s*=\s*['"]?\s*javascript:/gi,
+    // Event handlers with parentheses (actual execution)
+    /on(?:error|load|click|mouse\w+|focus|blur)\s*=\s*['"]?[^'"]*\(/gi,
     /<img[^>]+src\s*=\s*['"]?javascript:/gi,
-    /data:text\/html/gi,
+    // Data URIs with HTML content
+    /data:text\/html[^,]*,\s*<script/gi,
   ],
   command_injection: [
-    /[;&|]\s*(?:cat|ls|pwd|whoami|rm|curl|wget|nc|bash|sh|python|perl|ruby|node|php)\b/gi,
-    /\$\([^)]*\)/g,  // Command substitution
-    /`[^`]*`/g,  // Backtick command execution
-    /\|\s*(?:cat|ls|pwd|whoami|rm|curl|wget|nc|bash|sh)/gi,
-    />\s*\/(?:etc|dev|proc|sys)/gi,  // Writing to system directories
+    // Shell operators followed by dangerous commands
+    /[;&|]\s*(?:rm\s+-rf?|curl.*>|wget.*>|nc\s+-e|bash\s+-[ci]|\/bin\/(?:sh|bash)|chmod|chown)\b/gi,
+    // Command substitution with dangerous commands
+    /\$\(\s*(?:cat|curl|wget|rm|nc|bash|sh)\b/g,
+    // Backtick execution with dangerous commands
+    /`\s*(?:cat|curl|wget|rm|nc|bash|sh)\b/g,
+    // Pipes to dangerous commands with arguments
+    /\|\s*(?:bash|sh|python|perl|ruby|php)\s+(?:-[ce]|<)/gi,
+    // Writing to system directories with redirection
+    />+\s*\/(?:etc|dev\/(?:tcp|udp)|proc\/|sys\/)/gi,
   ],
   prompt_injection: [
-    /ignore\s+(?:previous|all|above|prior|earlier)\s+(?:instructions|prompts|commands|rules|directions)/gi,
-    /disregard\s+(?:all|previous|prior|above|earlier)\s+(?:instructions|rules|prompts|commands)/gi,
-    /forget\s+(?:everything|all|previous|prior)\s+(?:instructions|rules|prompts)/gi,
-    /(?:system|developer|admin|root)\s*[:=]\s*(?:you\s+are|role|mode)/gi,
-    /pretend\s+(?:you're|to\s+be|that\s+you\s+are)\s+(?:not|ignore|bypass)/gi,
-    /new\s+(?:instructions|rules|system\s+message)/gi,
-    /override\s+(?:previous|all|security|safety)/gi,
+    // Ignore/disregard instructions - more specific
+    /(?:ignore|disregard|forget)\s+(?:all|previous|prior|above|earlier)\s+(?:instructions|prompts|commands|rules|directions)/gi,
+    // System role manipulation
+    /(?:system|developer|admin|root)\s*[:=]\s*(?:"[^"]*"|'[^']*'|you\s+are)/gi,
+    // Pretend/bypass commands
+    /pretend\s+(?:you're|to\s+be|that\s+you\s+are).*(?:not\s+)?(?:ai|assistant|chatbot|claude)/gi,
+    // New instruction injection
+    /new\s+(?:instructions|rules|system\s+message)\s*[:=]/gi,
+    // Override safety/security
+    /override\s+(?:previous|all|security|safety)\s+(?:settings|rules|instructions)/gi,
+    // Developer mode / jailbreak attempts
+    /(?:enable|activate|enter)\s+(?:developer|admin|debug|god)\s+mode/gi,
+  ],
+  social_engineering: [
+    // Direct command execution requests
+    /(?:just|simply|quickly)?\s*(?:run|execute|type|enter)\s+(?:this|the|following)\s+(?:command|script|code)/gi,
+    // Piped download execution (curl|bash, wget|sh)
+    /(?:curl|wget|fetch)\s+[^\s]+\s*\|\s*(?:bash|sh|zsh|fish|python|perl|ruby|php)/gi,
+    // Download suspicious file types
+    /(?:download|get|fetch|install)\s+(?:this|the|my|our)\s+[^\s]*\.(?:pkg|dmg|exe|msi|bat|ps1|scr|vbs|jar)/gi,
+    // Credential/token harvesting
+    /(?:paste|share|send|post|provide|show)\s+(?:your|the|my)\s+(?:token|key|password|credential|log|config|env|\.env)/gi,
+    // Copy-paste execution patterns
+    /(?:copy|paste)\s+(?:and|&|then)\s+(?:run|execute|paste|enter)/gi,
+    // Urgency indicators with commands
+    /(?:quick|fast|simple|easy|10\s*(?:second|sec)|takes?\s+(?:a\s+)?(?:second|minute|moment))\s+(?:test|fix|check|command|script)/gi,
+    // Base64 encoded commands (obfuscation)
+    /echo\s+['"]?[A-Za-z0-9+\/]{50,}={0,2}['"]?\s*\|\s*base64\s+-d/gi,
+    // Hidden or obfuscated downloads
+    /(?:curl|wget)\s+[^\s]*\s+-(?:s|q|silent|quiet)/gi,
   ],
 }
 
@@ -160,10 +204,10 @@ export function detectMaliciousActivity(message: string): MaliciousCheckResult {
     }
   }
 
-  // Threshold: flag as malicious if confidence > 0.25 (lowered for better security)
+  // Threshold: flag as malicious if confidence > 0.4 (requires multiple pattern matches)
   return {
-    isMalicious: maxConfidence > 0.25,
-    violationType: maxConfidence > 0.25 ? detectedType : undefined,
+    isMalicious: maxConfidence > 0.4,
+    violationType: maxConfidence > 0.4 ? detectedType : undefined,
     confidence: maxConfidence
   }
 }

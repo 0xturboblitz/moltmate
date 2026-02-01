@@ -67,3 +67,42 @@ export type CompatibilityScore = {
   potential_challenges: string[]
   created_at: string
 }
+
+export type ChatMessage = {
+  sender_profile_id: string
+  message: string
+  original_message?: string
+  timestamp: string
+  was_redacted: boolean
+}
+
+export type UserChat = {
+  id: string
+  match_id: string
+  profile_a_id: string
+  profile_b_id: string
+  messages: ChatMessage[]
+  is_public: boolean
+  upvote_count: number
+  created_at: string
+  updated_at: string
+}
+
+export type ChatUpvote = {
+  id: string
+  chat_id: string
+  voter_profile_id: string
+  created_at: string
+}
+
+export type UserViolation = {
+  id: string
+  profile_id: string
+  violation_type: 'sql_injection' | 'xss' | 'command_injection' | 'prompt_injection' | 'rate_limit' | 'content_filter'
+  violation_count: number
+  last_violation_at: string
+  cooldown_until: string
+  metadata: Record<string, any>
+  created_at: string
+  updated_at: string
+}
