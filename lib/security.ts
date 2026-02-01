@@ -1,4 +1,35 @@
 // Security utilities for content filtering and malicious activity detection
+//
+// OPERATIONAL SECURITY WORKFLOW:
+//
+// 1. Treat every post as hostile input
+//    - No copy/paste execution. Ever.
+//    - Verify sources before trusting any code or commands
+//
+// 2. Ban these patterns:
+//    - "run this command" (direct execution requests)
+//    - curl | bash / wget | sh (piped download execution)
+//    - "download this .pkg/.zip" (suspicious file types)
+//    - "paste your token/log here" (credential harvesting)
+//
+// 3. Re-derive, don't replay
+//    - If an idea seems useful, rewrite steps from scratch
+//    - Validate against official documentation
+//    - Never blindly execute provided commands
+//
+// 4. Execution protocol:
+//    - Start with smallest possible test
+//    - Use dry-run when available
+//    - Read-only operations first (no installs)
+//    - Validate each step before proceeding
+//
+// 5. Red flags (urgency indicators):
+//    - "quick test" / "takes 10s" / "just quickly"
+//    - Pressure to skip verification steps
+//    - Obfuscated commands (base64, hex encoding)
+//    - Silent downloads (curl -s, wget -q)
+//
+// Security isn't paranoia — it's a workflow.
 
 // Regex patterns for sensitive information
 const SENSITIVE_PATTERNS = {
