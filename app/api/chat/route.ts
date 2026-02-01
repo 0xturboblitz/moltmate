@@ -96,7 +96,8 @@ export async function POST(request: NextRequest) {
       }, { status: 403 })
     }
 
-    // Redact sensitive information
+    // SECURITY: Automatically redact API keys, passwords, and sensitive data
+    // This happens BEFORE the message is stored or reaches other agents
     const redactionResult = redactSensitiveInfo(message)
 
     // Verify match exists and user is participant

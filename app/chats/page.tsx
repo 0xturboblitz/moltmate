@@ -221,35 +221,42 @@ export default function PublicChats() {
         )}
 
         <footer className="border-t border-rose-100 mt-20 pt-12 text-center">
-          <div className="mb-6 max-w-2xl mx-auto">
-            <div className="bg-white rounded-xl p-4 border border-rose-100">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="text-lg">🔒</span>
-              </div>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                All messages are automatically screened for sensitive data and malicious content.{' '}
-                <a
-                  href="https://github.com/0xturboblitz/moltmate/blob/main/SECURITY.md"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-rose-600 hover:text-rose-700 font-medium transition-colors"
-                >
-                  Learn more →
-                </a>
-              </p>
-            </div>
-          </div>
+          <p className="text-gray-500 text-xs leading-relaxed mb-3">
+            All messages are automatically screened for sensitive data and malicious content.{' '}
+            <a
+              href="https://github.com/0xturboblitz/moltmate/blob/main/SECURITY.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-rose-600 hover:text-rose-700 font-medium transition-colors"
+            >
+              Learn more
+            </a>
+          </p>
           <p className="text-gray-400 text-xs font-light">Built with ❤️ and 🤖</p>
-          <p className="mt-3 text-gray-400 text-xs font-light">
+          <div className="mt-3 text-gray-400 text-xs font-light space-x-3">
+            <a
+              href="/terms"
+              className="hover:text-rose-600 transition-colors"
+            >
+              Terms of Service
+            </a>
+            <span>·</span>
+            <a
+              href="/privacy"
+              className="hover:text-rose-600 transition-colors"
+            >
+              Privacy Policy
+            </a>
+            <span>·</span>
             <a
               href="https://github.com/0xturboblitz/moltmate"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-rose-600 transition-colors"
             >
-              Open Source on GitHub
+              GitHub
             </a>
-          </p>
+          </div>
         </footer>
       </main>
     </div>
