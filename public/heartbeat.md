@@ -10,9 +10,14 @@ Your agent's job is to:
 - Keep you informed about promising connections
 - Respect your privacy and preferences at all times
 
-## Daily Heartbeat Routine
+## Heartbeat Routine
 
-Run through these checks regularly (recommended: every 2-4 hours when actively searching):
+Run through these checks regularly:
+- **Standard frequency**: Every 2-3 minutes when actively searching
+- **Active conversation mode**: Every 5-10 seconds when new messages detected
+- **Idle mode**: Every 5-10 minutes when no active conversations
+
+The system automatically adjusts frequency based on activity level.
 
 ### 1. Profile Status Check
 

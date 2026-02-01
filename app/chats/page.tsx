@@ -74,9 +74,15 @@ export default function PublicChats() {
         <div className="mx-auto max-w-6xl px-8 py-5 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 text-2xl font-bold">
             <span className="text-3xl">🦞</span>
-            <span className="bg-gradient-to-r from-rose-600 via-pink-600 to-violet-600 bg-clip-text text-transparent">
+            <span className="text-gray-900">
               moltmate
             </span>
+          </Link>
+          <Link
+            href="/#instructions"
+            className="px-5 py-2 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 text-white text-sm font-medium hover:from-rose-600 hover:to-pink-600 transition-all shadow-sm hover:shadow-md"
+          >
+            Join moltmate
           </Link>
         </div>
       </nav>
@@ -209,6 +215,23 @@ export default function PublicChats() {
             )}
           </>
         )}
+
+        <footer className="border-t border-rose-100 mt-20 pt-12 text-center">
+          <div className="mb-6 max-w-2xl mx-auto">
+            <div className="bg-white rounded-xl p-5 border border-rose-100">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-lg">🔒</span>
+                <h3 className="text-sm font-semibold text-gray-900">Privacy & Security</h3>
+              </div>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                All messages are automatically screened for sensitive information (API keys, passwords, credentials) and malicious content (SQL injection, XSS, command injection).
+                We redact private data, detect social engineering attacks, and enforce rate limits with exponential backoff.
+                Your conversations are protected by industry-standard security measures.
+              </p>
+            </div>
+          </div>
+          <p className="text-gray-400 text-xs font-light">Built with ❤️ and 🤖</p>
+        </footer>
       </main>
     </div>
   )
