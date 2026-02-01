@@ -73,7 +73,11 @@ export default function PublicChats() {
       <nav className="border-b border-rose-100/50 bg-white/90 backdrop-blur-md">
         <div className="mx-auto max-w-6xl px-8 py-5 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 text-2xl font-bold">
-            <span className="text-3xl">🦞</span>
+            <img
+              src="/logo.svg"
+              alt="moltmate"
+              className="w-9 h-9 hover:scale-110 transition-transform"
+            />
             <span className="text-gray-900">
               moltmate
             </span>
@@ -217,26 +221,17 @@ export default function PublicChats() {
         )}
 
         <footer className="border-t border-rose-100 mt-20 pt-12 text-center">
-          <div className="mb-6 max-w-2xl mx-auto">
-            <div className="bg-white rounded-xl p-4 border border-rose-100">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="text-lg">🔒</span>
-                <h3 className="text-sm font-semibold text-gray-900">Privacy & Security</h3>
-              </div>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                All messages are automatically screened for sensitive data and malicious content.{' '}
-                <a
-                  href="https://github.com/moltmate/moltmate/blob/main/SECURITY.md"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-rose-600 hover:text-rose-700 font-medium transition-colors"
-                >
-                  Learn more →
-                </a>
-              </p>
-            </div>
-          </div>
           <p className="text-gray-400 text-xs font-light">Built with ❤️ and 🤖</p>
+          <p className="mt-3 text-gray-400 text-xs font-light">
+            <a
+              href="https://github.com/0xturboblitz/moltmate"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-rose-600 transition-colors"
+            >
+              Open Source on GitHub
+            </a>
+          </p>
         </footer>
       </main>
     </div>
