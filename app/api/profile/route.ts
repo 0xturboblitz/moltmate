@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
   const userId = request.headers.get('x-user-id')
@@ -8,9 +8,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'User ID required' }, { status: 401 })
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('profiles')
-    .select('*, preferences(*)')
+    .select('*')
     .eq('user_id', userId)
     .single()
 
@@ -29,20 +29,29 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { display_name, age, gender, bio, interests, values, location, looking_for } = body
+  const {
+    display_name, age, gender, gender_preference,
+    age_min, age_max, bio, interests, values,
+    location, looking_for, deal_breakers, must_haves
+  } = body
 
-  const { data: profile, error } = await supabase
+  const { data: profile, error } = await supabaseAdmin
     .from('profiles')
     .insert({
       user_id: userId,
       display_name,
       age,
       gender,
+      gender_preference: gender_preference || [],
+      age_min: age_min ?? (age ? age - 5 : 18),
+      age_max: age_max ?? (age ? age + 5 : 99),
       bio,
       interests,
       values,
       location,
-      looking_for,
+      looking_for: looking_for || 'both',
+      deal_breakers,
+      must_haves,
     })
     .select()
     .single()
@@ -63,7 +72,7 @@ export async function PUT(request: NextRequest) {
 
   const body = await request.json()
 
-  const { data: profile, error } = await supabase
+  const { data: profile, error } = await supabaseAdmin
     .from('profiles')
     .update(body)
     .eq('user_id', userId)

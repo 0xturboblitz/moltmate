@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function PUT(
   request: NextRequest,
@@ -12,7 +12,7 @@ export async function PUT(
     return NextResponse.json({ error: 'User ID required' }, { status: 401 })
   }
 
-  const { data: profile } = await supabase
+  const { data: profile } = await supabaseAdmin
     .from('profiles')
     .select('id')
     .eq('user_id', userId)
@@ -24,7 +24,7 @@ export async function PUT(
 
   const { action } = await request.json()
 
-  const { data: match } = await supabase
+  const { data: match } = await supabaseAdmin
     .from('matches')
     .select('*')
     .eq('id', id)
@@ -48,7 +48,7 @@ export async function PUT(
     newStatus = isProfileA ? 'passed_a' : 'passed_b'
   }
 
-  const { data: updatedMatch, error } = await supabase
+  const { data: updatedMatch, error } = await supabaseAdmin
     .from('matches')
     .update({ match_status: newStatus })
     .eq('id', id)

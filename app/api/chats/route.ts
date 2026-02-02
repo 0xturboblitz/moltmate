@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // Sanitize messages for public viewing (remove original_message)
 function sanitizeMessages(messages: any[]): any[] {
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
   const offset = (page - 1) * limit
 
   try {
-    let query = supabase
+    let query = supabaseAdmin
       .from('user_chats')
       .select(`
         *,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
   const userId = request.headers.get('x-user-id')
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'User ID required' }, { status: 401 })
   }
 
-  const { data: profile } = await supabase
+  const { data: profile } = await supabaseAdmin
     .from('profiles')
     .select('id')
     .eq('user_id', userId)
@@ -18,13 +18,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
   }
 
-  const { data: matches, error } = await supabase
+  const { data: matches, error } = await supabaseAdmin
     .from('matches')
     .select(`
       *,
       profile_a:profiles!matches_profile_a_id_fkey(id, display_name, age, bio, interests),
-      profile_b:profiles!matches_profile_b_id_fkey(id, display_name, age, bio, interests),
-      compatibility_scores(*)
+      profile_b:profiles!matches_profile_b_id_fkey(id, display_name, age, bio, interests)
     `)
     .or(`profile_a_id.eq.${profile.id},profile_b_id.eq.${profile.id}`)
     .order('created_at', { ascending: false })
@@ -43,9 +42,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'User ID required' }, { status: 401 })
   }
 
-  const { data: myProfile } = await supabase
+  const { data: myProfile } = await supabaseAdmin
     .from('profiles')
-    .select('*, preferences(*)')
+    .select('*')
     .eq('user_id', userId)
     .single()
 
@@ -53,15 +52,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
   }
 
-  const prefs = myProfile.preferences
-
-  const { data: candidates } = await supabase
+  const { data: candidates } = await supabaseAdmin
     .from('profiles')
     .select('*')
     .neq('id', myProfile.id)
     .eq('is_active', true)
-    .gte('age', prefs?.age_min || 18)
-    .lte('age', prefs?.age_max || 99)
+    .gte('age', myProfile.age_min || 18)
+    .lte('age', myProfile.age_max || 99)
 
   if (!candidates || candidates.length === 0) {
     return NextResponse.json({ message: 'No candidates available' }, { status: 200 })
@@ -69,7 +66,7 @@ export async function POST(request: NextRequest) {
 
   const randomCandidate = candidates[Math.floor(Math.random() * candidates.length)]
 
-  const existingMatch = await supabase
+  const existingMatch = await supabaseAdmin
     .from('matches')
     .select('id')
     .or(`and(profile_a_id.eq.${myProfile.id},profile_b_id.eq.${randomCandidate.id}),and(profile_a_id.eq.${randomCandidate.id},profile_b_id.eq.${myProfile.id})`)
@@ -81,7 +78,7 @@ export async function POST(request: NextRequest) {
 
   const compatibilityScore = Math.floor(Math.random() * 40) + 60
 
-  const { data: newMatch, error } = await supabase
+  const { data: newMatch, error } = await supabaseAdmin
     .from('matches')
     .insert({
       profile_a_id: myProfile.id,
@@ -100,24 +97,6 @@ export async function POST(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
-
-  await supabase.from('compatibility_scores').insert({
-    match_id: newMatch.id,
-    overall_score: compatibilityScore,
-    values_score: Math.floor(Math.random() * 40) + 60,
-    lifestyle_score: Math.floor(Math.random() * 40) + 60,
-    communication_score: Math.floor(Math.random() * 40) + 60,
-    interests_score: Math.floor(Math.random() * 40) + 60,
-    why_compatible: [
-      'Both value authentic communication',
-      'Similar life goals and aspirations',
-      'Compatible communication styles'
-    ],
-    potential_challenges: [
-      'Different approaches to planning',
-      'May need to align on long-term expectations'
-    ]
-  })
 
   return NextResponse.json({ match: newMatch })
 }

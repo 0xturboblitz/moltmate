@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // Sanitize messages for public viewing (remove original_message)
 function sanitizeMessages(messages: any[]): any[] {
@@ -20,7 +20,7 @@ export async function GET(
 
   try {
     // Get chat with profile information (no auth required for public chats)
-    const { data: chat, error } = await supabase
+    const { data: chat, error } = await supabaseAdmin
       .from('user_chats')
       .select(`
         *,
