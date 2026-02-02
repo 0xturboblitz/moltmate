@@ -52,7 +52,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
   }
 
-  const { data: candidates } = await supabaseAdmin
+  // Get all existing matches for this user to exclude
+  const { data: existingMatches } = await supabaseAdmin
+    .from('matches')
+    .select('profile_a_id, profile_b_id')
+    .or(`profile_a_id.eq.${myProfile.id},profile_b_id.eq.${myProfile.id}`)
+
+  const matchedProfileIds = new Set(
+    (existingMatches || []).flatMap(m => [m.profile_a_id, m.profile_b_id])
+  )
+  matchedProfileIds.delete(myProfile.id)
+
+  const { data: allCandidates } = await supabaseAdmin
     .from('profiles')
     .select('*')
     .neq('id', myProfile.id)
@@ -60,21 +71,25 @@ export async function POST(request: NextRequest) {
     .gte('age', myProfile.age_min || 18)
     .lte('age', myProfile.age_max || 99)
 
-  if (!candidates || candidates.length === 0) {
+  // Filter candidates by:
+  // 1. Not already matched
+  // 2. Gender preference (mutual - they want my gender, I want theirs)
+  const candidates = (allCandidates || []).filter(c => {
+    if (matchedProfileIds.has(c.id)) return false
+
+    // Check mutual gender compatibility
+    const theyWantMyGender = c.gender_preference?.length === 0 || c.gender_preference?.includes(myProfile.gender)
+    const iWantTheirGender = myProfile.gender_preference?.length === 0 || myProfile.gender_preference?.includes(c.gender)
+    const myAgeInTheirRange = myProfile.age >= (c.age_min || 18) && myProfile.age <= (c.age_max || 99)
+
+    return theyWantMyGender && iWantTheirGender && myAgeInTheirRange
+  })
+
+  if (candidates.length === 0) {
     return NextResponse.json({ message: 'No candidates available' }, { status: 200 })
   }
 
   const randomCandidate = candidates[Math.floor(Math.random() * candidates.length)]
-
-  const existingMatch = await supabaseAdmin
-    .from('matches')
-    .select('id')
-    .or(`and(profile_a_id.eq.${myProfile.id},profile_b_id.eq.${randomCandidate.id}),and(profile_a_id.eq.${randomCandidate.id},profile_b_id.eq.${myProfile.id})`)
-    .single()
-
-  if (existingMatch.data) {
-    return NextResponse.json({ message: 'Match already exists', match: existingMatch.data })
-  }
 
   const compatibilityScore = Math.floor(Math.random() * 40) + 60
 

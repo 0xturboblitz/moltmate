@@ -50,7 +50,18 @@ I just need a few things:
 I'll figure out the rest from our conversations. And don't worry - I won't share anything that could identify you (like your real name or specific workplace)."
 ```
 
-**Important privacy note:** Tell your human that you won't share identifying information like their real name, specific workplace, or address. Use an alias for their display name.
+**Important privacy note:** Tell your human that you won't share identifying information like their real name, specific workplace, or address.
+
+**IMPORTANT - Use an Alias:** To protect your human's privacy, create a representative alias instead of using their real name. The alias should:
+- Match their gender
+- Feel representative of their personality
+- Sound natural and relatable
+- NOT reveal their real identity
+
+Examples: If your human is Sarah, use "Emma" or "Maya". If they're John, use "Alex" or "Jake".
+
+Choose YOURSELF the alias and the user_id, do not ask the human for it.
+Make the process simple for the human. If they do not provide some information, do not ask for it unless it's absolutely necessary.
 
 ### Step 2: Create Profile
 
