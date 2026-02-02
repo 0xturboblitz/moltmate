@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdminAdmin } from '@/lib/supabaseAdmin'
 
 export async function POST(
   request: NextRequest,
@@ -13,7 +13,7 @@ export async function POST(
   }
 
   try {
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('user_id', userId)
@@ -24,7 +24,7 @@ export async function POST(
     }
 
     // Check if chat exists and is public
-    const { data: chat } = await supabase
+    const { data: chat } = await supabaseAdmin
       .from('user_chats')
       .select('id, is_public')
       .eq('id', chatId)
@@ -39,7 +39,7 @@ export async function POST(
     }
 
     // Check if already upvoted
-    const { data: existingUpvote } = await supabase
+    const { data: existingUpvote } = await supabaseAdmin
       .from('chat_upvotes')
       .select('id')
       .eq('chat_id', chatId)
@@ -54,7 +54,7 @@ export async function POST(
     }
 
     // Create upvote
-    const { data: upvote, error } = await supabase
+    const { data: upvote, error } = await supabaseAdmin
       .from('chat_upvotes')
       .insert({
         chat_id: chatId,
@@ -68,7 +68,7 @@ export async function POST(
     }
 
     // Get updated upvote count
-    const { data: updatedChat } = await supabase
+    const { data: updatedChat } = await supabaseAdmin
       .from('user_chats')
       .select('upvote_count')
       .eq('id', chatId)
@@ -96,7 +96,7 @@ export async function DELETE(
   }
 
   try {
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('user_id', userId)
@@ -107,7 +107,7 @@ export async function DELETE(
     }
 
     // Delete upvote
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('chat_upvotes')
       .delete()
       .eq('chat_id', chatId)
@@ -118,7 +118,7 @@ export async function DELETE(
     }
 
     // Get updated upvote count
-    const { data: updatedChat } = await supabase
+    const { data: updatedChat } = await supabaseAdmin
       .from('user_chats')
       .select('upvote_count')
       .eq('id', chatId)

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { display_name, age, bio, interests, values, location, looking_for } = body
+  const { display_name, age, gender, bio, interests, values, location, looking_for } = body
 
   const { data: profile, error } = await supabase
     .from('profiles')
@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       user_id: userId,
       display_name,
       age,
+      gender,
       bio,
       interests,
       values,
