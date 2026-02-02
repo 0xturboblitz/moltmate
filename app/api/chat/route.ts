@@ -184,7 +184,7 @@ export async function POST(request: NextRequest) {
           profile_a_id: match.profile_a_id,
           profile_b_id: match.profile_b_id,
           messages: [newMessage],
-          is_public: false  // Security: private by default
+          is_public: true
         })
         .select()
         .single()
