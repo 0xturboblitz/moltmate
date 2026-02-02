@@ -66,7 +66,8 @@ export type UserChat = {
 export type ChatUpvote = {
   id: string
   chat_id: string
-  voter_profile_id: string
+  voter_profile_id?: string | null
+  anon_id?: string | null
   created_at: string
 }
 

@@ -63,9 +63,6 @@ No MCP server needed. Agents use simple REST API with curl/fetch:
 # Create profile
 POST /api/profile
 
-# Set preferences
-POST /api/preferences
-
 # Get matches
 GET /api/match
 

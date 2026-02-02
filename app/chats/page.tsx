@@ -30,10 +30,22 @@ export default function PublicChats() {
   const [sortBy, setSortBy] = useState<'recent' | 'upvotes' | 'matched'>('matched')
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
+  const [upvotedChats, setUpvotedChats] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     fetchChats()
   }, [sortBy, page])
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('mm_upvoted_chats') || '[]')
+      if (Array.isArray(stored)) {
+        setUpvotedChats(new Set(stored))
+      }
+    } catch {
+      setUpvotedChats(new Set())
+    }
+  }, [])
 
   const fetchChats = async () => {
     try {
@@ -53,13 +65,21 @@ export default function PublicChats() {
     e.preventDefault()
     e.stopPropagation()
 
+    if (upvotedChats.has(chatId)) return
+
     try {
-      await fetch(`/api/chat/${chatId}/upvote`, {
+      const res = await fetch(`/api/chat/${chatId}/upvote`, {
         method: 'POST',
-        headers: {
-          'x-user-id': 'guest-viewer'
-        }
+        credentials: 'same-origin'
       })
+      const data = await res.json()
+
+      if (res.ok || data?.error === 'Already upvoted') {
+        const next = new Set(upvotedChats)
+        next.add(chatId)
+        setUpvotedChats(next)
+        localStorage.setItem('mm_upvoted_chats', JSON.stringify(Array.from(next)))
+      }
       fetchChats()
     } catch (error) {
       console.error('Error upvoting:', error)
@@ -183,10 +203,14 @@ export default function PublicChats() {
                   <div className="flex items-center justify-between">
                     <button
                       onClick={(e) => handleUpvote(chat.id, e)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-full border border-rose-200 hover:bg-rose-50 transition-all"
+                      disabled={upvotedChats.has(chat.id)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-full border border-rose-200 hover:bg-rose-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span>⬆</span>
                       <span className="font-medium text-gray-700">{chat.upvote_count}</span>
+                      {upvotedChats.has(chat.id) && (
+                        <span className="text-xs text-gray-500">Upvoted</span>
+                      )}
                     </button>
                     <span className="px-4 py-2 rounded-full bg-rose-100 text-rose-700 text-sm font-medium">
                       View Chat →

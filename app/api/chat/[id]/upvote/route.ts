@@ -7,20 +7,28 @@ export async function POST(
 ) {
   const { id: chatId } = await params
   const userId = request.headers.get('x-user-id')
-
-  if (!userId) {
-    return NextResponse.json({ error: 'User ID required' }, { status: 401 })
-  }
+  let anonId = request.cookies.get('mm_anon')?.value
+  let shouldSetAnonCookie = false
 
   try {
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('id')
-      .eq('user_id', userId)
-      .single()
+    let voterProfileId: string | null = null
+    if (userId) {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('user_id', userId)
+        .single()
 
-    if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      if (!profile) {
+        return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      }
+
+      voterProfileId = profile.id
+    } else {
+      if (!anonId) {
+        anonId = crypto.randomUUID()
+        shouldSetAnonCookie = true
+      }
     }
 
     // Check if chat exists and is public
@@ -39,18 +47,29 @@ export async function POST(
     }
 
     // Check if already upvoted
-    const { data: existingUpvote } = await supabaseAdmin
+    const existingUpvoteQuery = supabaseAdmin
       .from('chat_upvotes')
       .select('id')
       .eq('chat_id', chatId)
-      .eq('voter_profile_id', profile.id)
-      .single()
+
+    const { data: existingUpvote } = voterProfileId
+      ? await existingUpvoteQuery.eq('voter_profile_id', voterProfileId).single()
+      : await existingUpvoteQuery.eq('anon_id', anonId).single()
 
     if (existingUpvote) {
-      return NextResponse.json({
+      const response = NextResponse.json({
         error: 'Already upvoted',
         upvote_id: existingUpvote.id
       }, { status: 400 })
+      if (shouldSetAnonCookie && anonId) {
+        response.cookies.set('mm_anon', anonId, {
+          httpOnly: true,
+          sameSite: 'lax',
+          path: '/',
+          maxAge: 60 * 60 * 24 * 365
+        })
+      }
+      return response
     }
 
     // Create upvote
@@ -58,7 +77,8 @@ export async function POST(
       .from('chat_upvotes')
       .insert({
         chat_id: chatId,
-        voter_profile_id: profile.id
+        voter_profile_id: voterProfileId,
+        anon_id: voterProfileId ? null : anonId
       })
       .select()
       .single()
@@ -74,10 +94,19 @@ export async function POST(
       .eq('id', chatId)
       .single()
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       upvote,
       upvote_count: updatedChat?.upvote_count || 0
     })
+    if (shouldSetAnonCookie && anonId) {
+      response.cookies.set('mm_anon', anonId, {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365
+      })
+    }
+    return response
 
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
@@ -90,28 +119,35 @@ export async function DELETE(
 ) {
   const { id: chatId } = await params
   const userId = request.headers.get('x-user-id')
-
-  if (!userId) {
-    return NextResponse.json({ error: 'User ID required' }, { status: 401 })
-  }
+  const anonId = request.cookies.get('mm_anon')?.value
 
   try {
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('id')
-      .eq('user_id', userId)
-      .single()
+    let voterProfileId: string | null = null
+    if (userId) {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('user_id', userId)
+        .single()
 
-    if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      if (!profile) {
+        return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      }
+
+      voterProfileId = profile.id
+    } else if (!anonId) {
+      return NextResponse.json({ error: 'Anonymous voter id required' }, { status: 401 })
     }
 
     // Delete upvote
-    const { error } = await supabaseAdmin
+    const deleteQuery = supabaseAdmin
       .from('chat_upvotes')
       .delete()
       .eq('chat_id', chatId)
-      .eq('voter_profile_id', profile.id)
+
+    const { error } = voterProfileId
+      ? await deleteQuery.eq('voter_profile_id', voterProfileId)
+      : await deleteQuery.eq('anon_id', anonId)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

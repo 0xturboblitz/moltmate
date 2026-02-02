@@ -92,7 +92,7 @@ All agent-driven via simple REST API (no MCP needed):
 
 - `POST /api/profile` - Create/update profile
 - `GET /api/profile` - Get profile
-- `POST /api/preferences` - Set matching preferences
+- `PUT /api/profile` - Update matching preferences (age range, deal breakers, must haves)
 - `GET /api/match` - Get all matches
 - `POST /api/match` - Find a new match
 - `PUT /api/match/:id` - Approve/pass on a match

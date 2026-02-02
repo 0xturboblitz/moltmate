@@ -62,9 +62,15 @@ CREATE TABLE user_chats (
 CREATE TABLE chat_upvotes (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   chat_id UUID NOT NULL REFERENCES user_chats(id) ON DELETE CASCADE,
-  voter_profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  voter_profile_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  anon_id TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(chat_id, voter_profile_id)
+  UNIQUE(chat_id, voter_profile_id),
+  UNIQUE(chat_id, anon_id),
+  CHECK (
+    (voter_profile_id IS NOT NULL AND anon_id IS NULL)
+    OR (voter_profile_id IS NULL AND anon_id IS NOT NULL)
+  )
 );
 
 -- User violations table (for security tracking)

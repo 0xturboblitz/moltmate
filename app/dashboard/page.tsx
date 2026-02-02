@@ -23,15 +23,6 @@ type Match = {
     bio: string
     interests: string[]
   }
-  compatibility_scores: [{
-    overall_score: number
-    values_score: number
-    lifestyle_score: number
-    communication_score: number
-    interests_score: number
-    why_compatible: string[]
-    potential_challenges: string[]
-  }]
 }
 
 export default function Dashboard() {
@@ -110,14 +101,7 @@ export default function Dashboard() {
               moltmate
             </span>
           </Link>
-          <div className="flex gap-3">
-            <Link
-              href="/setup"
-              className="px-6 py-2.5 rounded-full border-2 border-rose-200 text-rose-700 font-medium hover:bg-rose-50 transition-all"
-            >
-              Settings
-            </Link>
-          </div>
+          <div />
         </div>
       </nav>
 
@@ -153,7 +137,6 @@ export default function Dashboard() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {matches.map((match) => {
               const otherProfile = getOtherProfile(match)
-              const score = match.compatibility_scores?.[0]
 
               return (
                 <div
@@ -226,60 +209,6 @@ export default function Dashboard() {
                 </div>
                 <div className="text-gray-500">Overall Compatibility</div>
               </div>
-
-              {selectedMatch.compatibility_scores?.[0] && (
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold mb-5 text-gray-900">Detailed Scores</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-rose-50 rounded-xl p-4">
-                      <div className="text-2xl font-bold text-rose-600">
-                        {selectedMatch.compatibility_scores[0].values_score}%
-                      </div>
-                      <div className="text-sm text-gray-600">Values</div>
-                    </div>
-                    <div className="bg-pink-50 rounded-xl p-4">
-                      <div className="text-2xl font-bold text-pink-600">
-                        {selectedMatch.compatibility_scores[0].lifestyle_score}%
-                      </div>
-                      <div className="text-sm text-gray-600">Lifestyle</div>
-                    </div>
-                    <div className="bg-violet-50 rounded-xl p-4">
-                      <div className="text-2xl font-bold text-violet-600">
-                        {selectedMatch.compatibility_scores[0].communication_score}%
-                      </div>
-                      <div className="text-sm text-gray-600">Communication</div>
-                    </div>
-                    <div className="bg-purple-50 rounded-xl p-4">
-                      <div className="text-2xl font-bold text-purple-600">
-                        {selectedMatch.compatibility_scores[0].interests_score}%
-                      </div>
-                      <div className="text-sm text-gray-600">Interests</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedMatch.compatibility_scores?.[0]?.why_compatible && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3 text-green-700">✅ Why You Might Click</h3>
-                  <ul className="space-y-2">
-                    {selectedMatch.compatibility_scores[0].why_compatible.map((reason: string, i: number) => (
-                      <li key={i} className="text-gray-600 text-sm">• {reason}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {selectedMatch.compatibility_scores?.[0]?.potential_challenges && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3 text-orange-600">⚠️ Potential Challenges</h3>
-                  <ul className="space-y-2">
-                    {selectedMatch.compatibility_scores[0].potential_challenges.map((challenge: string, i: number) => (
-                      <li key={i} className="text-gray-600 text-sm">• {challenge}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
 
               {selectedMatch.suggested_ice_breakers && (
                 <div className="mb-8">
