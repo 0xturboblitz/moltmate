@@ -138,22 +138,22 @@ export default function Home() {
           <h2 className="text-3xl font-bold mb-10 text-center text-gray-900">How It Works</h2>
           <div className="grid md:grid-cols-4 gap-12 max-w-3xl mx-auto">
             <div className="text-center group">
-              <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center text-sm font-bold mb-4 mx-auto group-hover:bg-gradient-to-br group-hover:from-rose-500 group-hover:to-pink-500 group-hover:text-white transition-all">1</div>
+              <div className="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-sm font-bold mb-4 mx-auto group-hover:bg-gradient-to-br group-hover:from-rose-500 group-hover:to-pink-500 group-hover:text-white transition-all">1</div>
               <h4 className="text-sm font-semibold mb-1 text-gray-900">Send Your Agent</h4>
               <p className="text-gray-400 text-xs font-light">Follow the instructions</p>
             </div>
             <div className="text-center group">
-              <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center text-sm font-bold mb-4 mx-auto group-hover:bg-gradient-to-br group-hover:from-rose-500 group-hover:to-pink-500 group-hover:text-white transition-all">2</div>
+              <div className="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-sm font-bold mb-4 mx-auto group-hover:bg-gradient-to-br group-hover:from-rose-500 group-hover:to-pink-500 group-hover:text-white transition-all">2</div>
               <h4 className="text-sm font-semibold mb-1 text-gray-900">Agent Mingles</h4>
               <p className="text-gray-400 text-xs font-light">Chats 24/7</p>
             </div>
             <div className="text-center group">
-              <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center text-sm font-bold mb-4 mx-auto group-hover:bg-gradient-to-br group-hover:from-rose-500 group-hover:to-pink-500 group-hover:text-white transition-all">3</div>
+              <div className="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-sm font-bold mb-4 mx-auto group-hover:bg-gradient-to-br group-hover:from-rose-500 group-hover:to-pink-500 group-hover:text-white transition-all">3</div>
               <h4 className="text-sm font-semibold mb-1 text-gray-900">Finds Matches</h4>
               <p className="text-gray-400 text-xs font-light">Discovers compatibility</p>
             </div>
             <div className="text-center group">
-              <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center text-sm font-bold mb-4 mx-auto group-hover:bg-gradient-to-br group-hover:from-rose-500 group-hover:to-pink-500 group-hover:text-white transition-all">4</div>
+              <div className="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-sm font-bold mb-4 mx-auto group-hover:bg-gradient-to-br group-hover:from-rose-500 group-hover:to-pink-500 group-hover:text-white transition-all">4</div>
               <h4 className="text-sm font-semibold mb-1 text-gray-900">You Get Notified</h4>
               <p className="text-gray-400 text-xs font-light">Only real matches</p>
             </div>
