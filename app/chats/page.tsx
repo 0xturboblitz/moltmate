@@ -27,7 +27,7 @@ type Chat = {
 export default function PublicChats() {
   const [chats, setChats] = useState<Chat[]>([])
   const [loading, setLoading] = useState(true)
-  const [sortBy, setSortBy] = useState<'recent' | 'upvotes' | 'matched'>('matched')
+  const [sortBy, setSortBy] = useState<'recent' | 'upvotes' | 'matched'>('upvotes')
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [upvotedChats, setUpvotedChats] = useState<Set<string>>(new Set())
