@@ -35,6 +35,17 @@ export async function POST(request: NextRequest) {
     location, looking_for, deal_breakers, must_haves
   } = body
 
+  // Validate required fields
+  if (!display_name || typeof display_name !== 'string') {
+    return NextResponse.json({ error: 'display_name is required' }, { status: 400 })
+  }
+  if (!age || typeof age !== 'number' || age < 18 || age > 100) {
+    return NextResponse.json({ error: 'age must be a number between 18 and 100' }, { status: 400 })
+  }
+  if (!gender || !['male', 'female', 'non-binary', 'other'].includes(gender)) {
+    return NextResponse.json({ error: 'gender must be male, female, non-binary, or other' }, { status: 400 })
+  }
+
   const { data: profile, error } = await supabaseAdmin
     .from('profiles')
     .insert({

@@ -10,6 +10,8 @@ export default function Setup() {
   const [profile, setProfile] = useState({
     display_name: '',
     age: '',
+    gender: '',
+    gender_preference: [] as string[],
     bio: '',
     interests: '',
     values: '',
@@ -19,7 +21,6 @@ export default function Setup() {
   const [preferences, setPreferences] = useState({
     age_min: '18',
     age_max: '99',
-    privacy_level: 'selective',
     deal_breakers: '',
     must_haves: '',
   })
@@ -35,10 +36,15 @@ export default function Setup() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...profile,
+          display_name: profile.display_name,
           age: parseInt(profile.age),
+          gender: profile.gender,
+          gender_preference: profile.gender_preference,
+          bio: profile.bio,
           interests: profile.interests.split(',').map(i => i.trim()).filter(Boolean),
           values: profile.values.split(',').map(v => v.trim()).filter(Boolean),
+          location: profile.location,
+          looking_for: profile.looking_for,
         }),
       })
       setStep(2)
@@ -49,14 +55,13 @@ export default function Setup() {
 
   const handlePreferencesSubmit = async () => {
     try {
-      await fetch('/api/preferences', {
-        method: 'POST',
+      await fetch('/api/profile', {
+        method: 'PUT',
         headers: {
           'x-user-id': userId,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...preferences,
           age_min: parseInt(preferences.age_min),
           age_max: parseInt(preferences.age_max),
           deal_breakers: preferences.deal_breakers.split(',').map(d => d.trim()).filter(Boolean),
@@ -131,6 +136,50 @@ export default function Setup() {
                   className="w-full px-4 py-3 rounded-xl border border-rose-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-100 focus:outline-none transition"
                   placeholder="18"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Gender
+                </label>
+                <select
+                  value={profile.gender}
+                  onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-rose-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-100 focus:outline-none transition"
+                >
+                  <option value="">Select...</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="non-binary">Non-binary</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Interested in
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {['male', 'female', 'non-binary', 'other'].map((g) => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => {
+                        const prefs = profile.gender_preference.includes(g)
+                          ? profile.gender_preference.filter(p => p !== g)
+                          : [...profile.gender_preference, g]
+                        setProfile({ ...profile, gender_preference: prefs })
+                      }}
+                      className={`px-4 py-2 rounded-full border transition ${
+                        profile.gender_preference.includes(g)
+                          ? 'bg-rose-500 text-white border-rose-500'
+                          : 'border-rose-200 text-gray-700 hover:bg-rose-50'
+                      }`}
+                    >
+                      {g.charAt(0).toUpperCase() + g.slice(1)}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div>
@@ -241,21 +290,6 @@ export default function Setup() {
                     className="w-full px-4 py-3 rounded-xl border border-rose-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-100 focus:outline-none transition"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Privacy Level
-                </label>
-                <select
-                  value={preferences.privacy_level}
-                  onChange={(e) => setPreferences({ ...preferences, privacy_level: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-rose-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-100 focus:outline-none transition"
-                >
-                  <option value="public">Public - Share everything</option>
-                  <option value="selective">Selective - Share most things</option>
-                  <option value="private">Private - Share only basics</option>
-                </select>
               </div>
 
               <div>

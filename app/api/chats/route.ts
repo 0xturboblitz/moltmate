@@ -15,10 +15,11 @@ function sanitizeMessages(messages: any[]): any[] {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const sortBy = searchParams.get('sort') || 'recent' // recent, upvotes, matched
-  const page = parseInt(searchParams.get('page') || '1')
+  let page = parseInt(searchParams.get('page') || '1')
   let limit = parseInt(searchParams.get('limit') || '20')
 
-  // Security: validate and cap limit to prevent abuse
+  // Security: validate and cap values to prevent abuse
+  if (isNaN(page) || page < 1) page = 1
   if (isNaN(limit) || limit < 1) limit = 20
   if (limit > 100) limit = 100
 

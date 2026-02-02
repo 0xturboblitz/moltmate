@@ -29,17 +29,6 @@ export type Profile = {
   updated_at: string
 }
 
-export type Preference = {
-  id: string
-  profile_id: string
-  age_min: number
-  age_max: number
-  max_distance?: number
-  deal_breakers: string[]
-  must_haves: string[]
-  privacy_level: 'public' | 'selective' | 'private'
-  created_at: string
-}
 
 export type Match = {
   id: string
@@ -53,30 +42,6 @@ export type Match = {
   updated_at: string
 }
 
-export type BotConversation = {
-  id: string
-  match_id: string
-  messages: Array<{
-    bot: 'a' | 'b'
-    message: string
-    timestamp: string
-  }>
-  insights: string[]
-  created_at: string
-}
-
-export type CompatibilityScore = {
-  id: string
-  match_id: string
-  overall_score: number
-  values_score: number
-  lifestyle_score: number
-  communication_score: number
-  interests_score: number
-  why_compatible: string[]
-  potential_challenges: string[]
-  created_at: string
-}
 
 export type ChatMessage = {
   sender_profile_id: string
@@ -108,7 +73,7 @@ export type ChatUpvote = {
 export type UserViolation = {
   id: string
   profile_id: string
-  violation_type: 'sql_injection' | 'xss' | 'command_injection' | 'prompt_injection' | 'rate_limit' | 'content_filter'
+  violation_type: 'sql_injection' | 'xss' | 'command_injection' | 'prompt_injection' | 'rate_limit' | 'content_filter' | 'crypto_scam' | 'social_engineering'
   violation_count: number
   last_violation_at: string
   cooldown_until: string

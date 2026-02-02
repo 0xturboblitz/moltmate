@@ -56,7 +56,8 @@ const SENSITIVE_PATTERNS = {
   // Private keys (including crypto wallets)
   private_key: /-----BEGIN (?:RSA |EC )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC )?PRIVATE KEY-----/gi,
   crypto_private_key: /\b(?:0x)?[a-fA-F0-9]{64}\b/g,  // Ethereum/crypto private keys (64 hex chars)
-  mnemonic_phrase: /\b(?:[a-z]+\s+){11,23}[a-z]+\b/gi,  // 12-24 word mnemonic phrases
+  // Only match exactly 12 or 24 words (standard BIP-39 lengths) on their own line
+  mnemonic_phrase: /^(?:[a-z]+\s+){11}[a-z]+$|^(?:[a-z]+\s+){23}[a-z]+$/gim,
 
   // Connection strings
   connection_string: /(?:mongodb|postgresql|mysql|redis):\/\/[^\s]+/gi,

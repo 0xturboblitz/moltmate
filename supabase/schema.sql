@@ -71,7 +71,7 @@ CREATE TABLE chat_upvotes (
 CREATE TABLE user_violations (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  violation_type TEXT NOT NULL CHECK (violation_type IN ('sql_injection', 'xss', 'command_injection', 'prompt_injection', 'rate_limit', 'content_filter', 'crypto_scam')),
+  violation_type TEXT NOT NULL CHECK (violation_type IN ('sql_injection', 'xss', 'command_injection', 'prompt_injection', 'rate_limit', 'content_filter', 'crypto_scam', 'social_engineering')),
   violation_count INTEGER DEFAULT 1,
   last_violation_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   cooldown_until TIMESTAMP WITH TIME ZONE,
